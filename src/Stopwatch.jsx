@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import ArrowBack from '@mui/icons-material/ArrowBack';
+import PlayArrow from '@mui/icons-material/PlayArrow';
+import Pause from '@mui/icons-material/Pause';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 
 const Stopwatch = ({ mode, setMode }) => {
   const [timeMs, setTimeMs] = useState(0);
@@ -33,19 +38,21 @@ const Stopwatch = ({ mode, setMode }) => {
 
   return (
     <div className="p-4 w-full h-full">
-      <h1 className="text-3xl font-bold mb-4">Stopwatch</h1>
-      <Button variant="outlined" onClick={() => setMode("search")}>⬅ Back</Button>
+      <div className="flex flex-row gap-2">
+            <IconButton variant="outlined" size="small" onClick={() => setMode("search")}><ArrowBack/></IconButton>
+            <h1 className="text-3xl font-bold mb-4">Stopwatch</h1>
+      </div>
 
       <div className="flex flex-col items-center justify-center space-y-4 mt-4">
         <p className="text-4xl font-mono">{formatTime(timeMs)}</p>
 
         <div className="flex flex-row gap-2">
           <Button variant="contained" onClick={() => setRunning(!running)}>
-            {running ? "||" : "▶"}
+            {running ? <Pause /> : <PlayArrow />}
           </Button>
 
           <Button variant="contained" color="error" onClick={resetStopwatch}>
-            Reset
+            <RestartAltIcon />
           </Button>
         </div>
       </div>

@@ -12,6 +12,9 @@ function App() {
   const [results, setResults] = useState([]);
   const [showCount, setShowCount] = useState(10);
   const [mode, setMode] = useState("search");
+  
+  //Spotify persistent state
+  const [playerReady, setPlayerReady] = useState(false);
 
   // File Indexing
   useEffect(() => {
@@ -48,7 +51,7 @@ function App() {
   //Spotify UI
   if (mode === "play") {
     return (
-      <Spotify mode={mode} setMode={setMode} />
+      <Spotify playerReady={playerReady} setPlayerReady={setPlayerReady} mode={mode} setMode={setMode} />
     )
   }
 

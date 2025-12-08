@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import Button from "@mui/material/Button";
+import { Paper, Button, TextField, List, ListItem, Divider, IconButton} from "@mui/material";
+import {ArrowBack, Search, SkipPrevious, SkipNext, PlayArrow, Pause} from "@mui/icons-material";
 
-const Spotify = ( { mode, setMode } ) => {
+const Spotify = ( { playerReady, setPlayerReady, mode, setMode } ) => {
     const [token, setToken] = useState("");
-    const [playerReady, setPlayerReady] = useState(false);
     const [deviceId, setDeviceId] = useState(null);
     const [spotifySearch, setSpotifySearch] = useState("");
     const [tracks, setTracks] = useState([]);
@@ -112,6 +112,7 @@ const Spotify = ( { mode, setMode } ) => {
       setCurrentTrack({
         name: data.item.name,
         artists: data.item.artists?.map((a) => a.name) ?? [],
+        img: data.item.album?.images?.[0]?.url || "",
       });
       setIsPlaying(data.is_playing);
     } else {
@@ -170,62 +171,124 @@ const Spotify = ( { mode, setMode } ) => {
   }, [mode, token]);
 
   return (
-      <div style={{ padding: 20 }}>
-        <h1>Spotify</h1>
+    <div className="p-4 space-y-6">
+        <div className="flex flex-row gap-2">
+            <IconButton variant="outlined" size="small" onClick={() => setMode("search")}><ArrowBack/></IconButton>
+            <h1 className="text-3xl font-bold">Spotify</h1>
+        </div>
 
-        <div>
-          <input
+        {/* Search Bar */}
+        <Paper className="p-4 flex items-center gap-4">
+            <TextField
+            fullWidth
+            label="Search"
             value={spotifySearch}
             onChange={(e) => setSpotifySearch(e.target.value)}
-            placeholder="Search tracks or playlists"
-          />
-          <button onClick={searchSpotify}>Search</button>
+            />
+            <Button variant="contained" endIcon={<Search />} onClick={searchSpotify}>
+            Search
+            </Button>
+        </Paper>
+
+        {/* Controls */}
+        {playerReady && (
+            <Paper className="p-4 flex flex-col items-center gap-4">
+                {currentTrack?.img && (
+                    <img
+                        src={currentTrack.img}
+                        alt={currentTrack.name}
+                        className="w-40 h-40 object-cover rounded-md shadow-md mb-2"
+                    />
+                )}
+                <div className="text-lg font-medium">
+                    {currentTrack?.name ? (
+                        <div className="flex flex-col space-y-2 justify-center items-center"> 
+                            <div>{currentTrack.name}</div>
+                            <div>{(currentTrack.artists || []).join(", ")}</div>
+                        </div>
+                    ) : (
+                    <span className="text-gray-500">No track playing</span>
+                    )}
+                </div>
+                <div className="flex flex-row gap-4">
+                    <IconButton onClick={skipPrevious}>
+                        <SkipPrevious />
+                    </IconButton>
+
+                    <IconButton onClick={togglePlayPause}>
+                        {isPlaying ? <Pause /> : <PlayArrow />}
+                    </IconButton>
+
+                    <IconButton onClick={skipNext}>
+                        <SkipNext />
+                    </IconButton>
+                </div>
+            </Paper>
+        )}
+
+        {/* Tracks */}
+        {playerReady && (
+            <Paper className="p-4">
+            <h2 className="text-xl font-semibold mb-2">Tracks</h2>
+            <Divider className="mb-3" />
+
+            <List>
+                {tracks
+                .filter((track) => track)
+                .map((track) => (
+                    <ListItem
+                    key={track.id}
+                    className="flex justify-between items-center"
+                    >
+                    <span className="mr-2">
+                        <strong>{track.name}</strong> —{" "}
+                        {track.artists.map((a) => a.name).join(", ")}
+                    </span>
+                    <IconButton
+                        size="small"
+                        onClick={() => playTrack(track.uri)}
+                    >
+                        <PlayArrow />
+                    </IconButton>
+                    </ListItem>
+                ))}
+            </List>
+            </Paper>
+        )}
+
+        {/* Playlists */}
+        {playerReady && (
+            <Paper className="p-4">
+            <h2 className="text-xl font-semibold mb-2">Playlists</h2>
+            <Divider className="mb-3" />
+
+            <List>
+                {playlists
+                .filter((pl) => pl?.name && pl.owner?.display_name)
+                .map((pl) => (
+                    <ListItem
+                    key={pl.id}
+                    className="flex justify-between items-center"
+                    >
+                    <span className="mr-2">
+                        <strong>{pl.name}</strong> — {pl.owner.display_name}
+                    </span>
+                    <IconButton
+                        size="small"
+                        onClick={() => playPlaylist(pl.uri)}
+                    >
+                        <PlayArrow />
+                    </IconButton>
+                    </ListItem>
+                ))}
+            </List>
+            </Paper>
+        )}
+
+        {!playerReady && (
+            <p className="text-gray-500 text-lg">Loading Spotify player...</p>
+        )}
         </div>
-
-        <div style={{ display: "flex", alignItems: "center", marginTop: 10 }}>
-          {playerReady && (
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <button onClick={skipPrevious}>⏮</button>
-              <button onClick={togglePlayPause}>
-                {isPlaying ? "⏸" : "▶"}
-              </button>
-              <button onClick={skipNext}>⏭</button>
-
-              {/* Current track display */}
-              <span style={{ marginLeft: 20 }}>
-                {currentTrack && currentTrack.name
-                  ? `${currentTrack.name} — ${(currentTrack.artists || []).join(", ")}`
-                  : ""}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {playerReady && <h2>Tracks</h2>}
-        {tracks.filter(track => track !== null && track !== undefined).map((track) => (
-          <div key={track.id} style={{ marginBottom: 5 }}>
-            {track.name} — {track.artists.map((a) => a.name).join(", ")}
-            <button onClick={() => playTrack(track.uri)}>▶ Play</button>
-          </div>
-        ))}
-
-        {playerReady && <h2>Playlists</h2>}
-        {playlists.filter(pl => pl !== null && pl !== undefined).map((pl) => (
-          <div key={pl.id} style={{ marginBottom: 8 }}>
-            <strong>{pl.name}</strong> — {pl.owner.display_name}
-            <button
-              style={{ marginLeft: 10 }}
-              onClick={() => playPlaylist(pl.uri)}
-            >
-              ▶ Play
-            </button>
-          </div>
-        ))}
-
-        {!playerReady && <p>Loading Spotify player...</p>}
-
-        <Button variant="outlined" onClick={() => setMode("search")}>⬅ Back</Button>
-      </div>
     );
 }
 

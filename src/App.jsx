@@ -3,8 +3,10 @@ import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 import TextField from "@mui/material/TextField";
 import { Paper, List, ListItem, Button, Box } from "@mui/material";
+import { PlayArrow } from "@mui/icons-material";
 import Stopwatch from "./Stopwatch";
 import Spotify from "./Spotify"
+import Timer from "./Timer";
 
 function App() {
   const [indexingDone, setIndexingDone] = useState(false);
@@ -65,6 +67,16 @@ function App() {
     );
   }
 
+  //Timer UI
+  if (mode === "timer") {
+    return (
+      <div>
+        <Timer mode={mode} setMode={setMode} />
+      </div>
+     
+    );
+  }
+
   //File Search UI
   return (
     <div className="p-4">
@@ -77,19 +89,25 @@ function App() {
       )}
       {indexingDone && (
         <>
-          <div style={{ marginBottom: 10 }}>
+          <div className="mb-4">
             <TextField id="outlined-basic" label="Search:" variant="standard" onChange={(e) => setSearch(e.target.value)} />
           </div>
 
           {search.toLowerCase().includes("play") && (
-            <div style={{ marginBottom: 10 }}>
-              <Button variant="outlined" onClick={() => setMode("play")}>▶ Spotify</Button>
+            <div c>
+              <Button variant="outlined" startIcon={<PlayArrow />} onClick={() => setMode("play")}>Spotify</Button>
             </div>
           )}
 
           {search.toLowerCase().includes("stopwatch") && (
-            <div style={{ marginBottom: 10 }}>
+            <div className="mb-4">
               <Button variant="outlined" onClick={() => setMode("stopwatch")}> Stopwatch</Button>
+            </div>
+          )}
+
+          {search.toLowerCase().includes("timer") && (
+            <div className="mb-4">
+              <Button variant="outlined" onClick={() => setMode("timer")}>Timer</Button>
             </div>
           )}
 
@@ -101,7 +119,7 @@ function App() {
             </List>
 
             {showCount < results.length && (
-              <Box sx={{ mt: 2 }}>
+              <Box className="mt-2">
                 <Button variant="contained" onClick={() => setShowCount(c => c + 10)}>
                   Load more ({results.length - showCount} remaining)
                 </Button>

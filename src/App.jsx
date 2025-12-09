@@ -16,6 +16,7 @@ function App() {
   const [mode, setMode] = useState("search");
   
   //Spotify persistent state
+  const [deviceId, setDeviceId] = useState(null);
   const [playerReady, setPlayerReady] = useState(false);
 
   // File Indexing
@@ -53,27 +54,21 @@ function App() {
   //Spotify UI
   if (mode === "play") {
     return (
-      <Spotify playerReady={playerReady} setPlayerReady={setPlayerReady} mode={mode} setMode={setMode} />
+      <Spotify playerReady={playerReady} setPlayerReady={setPlayerReady} deviceId={deviceId} setDeviceId={setDeviceId} mode={mode} setMode={setMode} />
     )
   }
 
   //Stopwatch UI
   if (mode === "stopwatch") {
     return (
-      <div>
-        <Stopwatch mode={mode} setMode={setMode} />
-      </div>
-     
-    );
+      <Stopwatch mode={mode} setMode={setMode} />
+  );
   }
 
   //Timer UI
   if (mode === "timer") {
     return (
-      <div>
-        <Timer mode={mode} setMode={setMode} />
-      </div>
-     
+      <Timer mode={mode} setMode={setMode} />
     );
   }
 

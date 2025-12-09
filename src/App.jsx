@@ -9,7 +9,7 @@ import Spotify from "./Spotify";
 import Timer from "./Timer";
 
 function App() {
-  const [rootPath, setRootPath] = useState("");
+  const [rootPath, setRootPath] = useState("/Users/YoungDeclan/");
   const [pathSubmitted, setPathSubmitted] = useState(false);
   const [indexingDone, setIndexingDone] = useState(false);
   const [search, setSearch] = useState("");
